@@ -1,4 +1,4 @@
-# zstart
+# zStart
 
 一个简洁起始页（新标签页），基于Vue3 in Vite的Edge/Chrome浏览器插件
 
@@ -27,3 +27,9 @@
   # 构建
   pnpm build
   ```
+
+### 加载
+
+以Edge浏览器为例，在 `浏览器设置` 中找到 `扩展程序`，然后点击 `加载已解压的扩展程序`，选择 `dist` 文件夹，即可加载
+
+![zstart](./public/use-1.png)
