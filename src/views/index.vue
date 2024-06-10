@@ -14,25 +14,8 @@ onMounted(() => {
   })
 })
 
-const { currentFavoriteLinks, delFavoriteLink } = useFavoriteLinks()
+const { currentFavoriteLinks, delFavoriteLink, delIndex } = useFavoriteLinks()
 const { currentWallpaper, changWallpaper } = useWallpaper()
-
-const delIndex = ref(-1)
-
-const openLink = (link?: string) => {
-  if (link) window.location.href = link
-}
-
-// const extractColorByName = computed(() => {
-//   return (name: string = '') => {
-//     let temp = []
-//     temp.push('#')
-//     for (const str of name) {
-//       temp.push(str.charCodeAt(0).toString(16))
-//     }
-//     return temp.slice(0, 5).join('').slice(0, 4)
-//   }
-// })
 </script>
 
 <template>
@@ -50,34 +33,30 @@ const openLink = (link?: string) => {
           :key="index"
           :class="{ active: delIndex == index }"
         >
-          <div class="link-item" @click="openLink(item.url)">
+          <a class="link-item" :href="item.url">
             <el-icon size="4rem">
               <font-awesome-icon v-if="item.icon" :icon="['fab', item.icon]" inverse />
               <i-ep-link v-else />
             </el-icon>
             <div class="link-item-title">{{ item.title }}</div>
-            <el-popconfirm
-              title="确定删除此标签?"
-              confirm-button-text="是"
-              cancel-button-text="否"
-              :hide-after="0"
-              @confirm.stop="delFavoriteLink(index)"
-              @cancel.stop="delIndex = -1"
-              :teleported="false"
-            >
-              <template #reference>
-                <div
-                  class="del"
-                  :class="{ active: delIndex == index }"
-                  @click.stop="delIndex = index"
-                >
-                  <el-icon size="1rem">
-                    <i-ep-close-bold />
-                  </el-icon>
-                </div>
-              </template>
-            </el-popconfirm>
-          </div>
+          </a>
+          <el-popconfirm
+            title="确定删除此标签?"
+            confirm-button-text="是"
+            cancel-button-text="否"
+            :hide-after="0"
+            @confirm="delFavoriteLink(index)"
+            @cancel="delIndex = -1"
+            :teleported="false"
+          >
+            <template #reference>
+              <div class="del" :class="{ active: delIndex == index }" @click="delIndex = index">
+                <el-icon size="1rem">
+                  <i-ep-close-bold />
+                </el-icon>
+              </div>
+            </template>
+          </el-popconfirm>
         </div>
       </div>
     </div>
@@ -143,7 +122,6 @@ const openLink = (link?: string) => {
     display: inline;
     margin: 1rem;
     position: relative;
-    color: rgba(255, 255, 255, 0.75);
 
     &::before {
       content: '';
@@ -165,35 +143,8 @@ const openLink = (link?: string) => {
       box-shadow: rgba(142, 142, 142, 0.19) 0rem 0.6rem 1.5rem 0rem;
     }
 
-    &:hover .link-item .del {
+    &:hover .del {
       display: flex;
-    }
-  }
-
-  .link-item {
-    width: 14rem;
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    position: relative;
-    cursor: pointer;
-
-    .link-item-title {
-      width: 100%;
-      font-size: 1.4rem;
-      color: #fff;
-      font-weight: 900;
-      font-family: '微软雅黑';
-      cursor: pointer;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
-      margin-top: 1rem;
     }
 
     .del {
@@ -207,7 +158,9 @@ const openLink = (link?: string) => {
       justify-content: center;
       padding: 0.3rem;
       display: none;
+      cursor: pointer;
       vertical-align: middle;
+      color: rgba(255, 255, 255, 0.75);
       &.active,
       &:hover {
         background-color: rgba($color: #000, $alpha: 0.25);
@@ -215,6 +168,33 @@ const openLink = (link?: string) => {
       }
       &.active {
         display: flex;
+      }
+    }
+
+    .link-item {
+      width: 14rem;
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.75);
+
+      .link-item-title {
+        width: 100%;
+        font-size: 1.4rem;
+        color: #fff;
+        font-weight: 900;
+        font-family: '微软雅黑';
+        cursor: pointer;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align: center;
+        margin-top: 1rem;
       }
     }
   }

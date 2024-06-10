@@ -61,6 +61,8 @@ export function useFavoriteLinks() {
     )
   })
 
+  const delIndex = ref(-1)
+
   const delFavoriteLink = (index: number) => {
     if (currentFavoriteLinks.value) {
       const link = currentFavoriteLinks.value[index]
@@ -69,9 +71,10 @@ export function useFavoriteLinks() {
         storage.sync.set({ favoriteLinks: FavoriteLinksUnique(currentFavoriteLinks.value) })
       }
     }
+    delIndex.value = -1
   }
 
-  return { currentFavoriteLinks, uniqueFavoriteLinks, delFavoriteLink }
+  return { currentFavoriteLinks, uniqueFavoriteLinks, delFavoriteLink, delIndex }
 }
 
 // todo
