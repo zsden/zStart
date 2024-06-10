@@ -8,6 +8,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElPopconfirm: typeof import('element-plus/es')['ElPopconfirm']
+    IEpCloseBold: typeof import('~icons/ep/close-bold')['default']
     IEpLink: typeof import('~icons/ep/link')['default']
     IEpRefresh: typeof import('~icons/ep/refresh')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

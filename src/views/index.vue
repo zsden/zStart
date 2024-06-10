@@ -1,21 +1,27 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useWallpaper } from '@/wallpaper/index'
-import { useFavoriteUrls } from '@/hook/FavoriteUrl'
+import { useFavoriteLinks } from '@/hook/FavoriteLink'
 import autofit from 'autofit.js'
 import WeatherTime from '@/components/WeatherTime/index.vue'
 
 onMounted(() => {
   autofit.init({
-    dh: 1440,
-    dw: 2560,
+    dh: window.innerHeight,
+    dw: window.innerWidth,
     el: '#app',
     resize: true
   })
 })
 
-const { currentFavoriteUrls } = useFavoriteUrls()
+const { currentFavoriteLinks, delFavoriteLink } = useFavoriteLinks()
 const { currentWallpaper, changWallpaper } = useWallpaper()
+
+const delIndex = ref(-1)
+
+const openLink = (link?: string) => {
+  if (link) window.location.href = link
+}
 
 // const extractColorByName = computed(() => {
 //   return (name: string = '') => {
@@ -37,16 +43,42 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
     </div>
     <div class="container">
       <weather-time class="time-el" />
-      <div class="favorite-url">
-        <a :href="item.url" v-for="(item, index) in currentFavoriteUrls" :key="index">
-          <div class="url-item">
+      <div class="favorite-link">
+        <div
+          class="link-item-bg"
+          v-for="(item, index) in currentFavoriteLinks"
+          :key="index"
+          :class="{ active: delIndex == index }"
+        >
+          <div class="link-item" @click="openLink(item.url)">
             <el-icon size="4rem">
               <font-awesome-icon v-if="item.icon" :icon="['fab', item.icon]" inverse />
               <i-ep-link v-else />
             </el-icon>
-            <div class="url-item-title">{{ item.title }}</div>
+            <div class="link-item-title">{{ item.title }}</div>
+            <el-popconfirm
+              title="确定删除此标签?"
+              confirm-button-text="是"
+              cancel-button-text="否"
+              :hide-after="0"
+              @confirm.stop="delFavoriteLink(index)"
+              @cancel.stop="delIndex = -1"
+              :teleported="false"
+            >
+              <template #reference>
+                <div
+                  class="del"
+                  :class="{ active: delIndex == index }"
+                  @click.stop="delIndex = index"
+                >
+                  <el-icon size="1rem">
+                    <i-ep-close-bold />
+                  </el-icon>
+                </div>
+              </template>
+            </el-popconfirm>
           </div>
-        </a>
+        </div>
       </div>
     </div>
     <div class="change-wallpaper" @click="changWallpaper">
@@ -60,7 +92,6 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
 .body-box {
   width: 100%;
   height: 100%;
-  position: relative;
 }
 
 .container {
@@ -101,13 +132,15 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
   margin-top: 13rem;
 }
 
-.favorite-url {
+.favorite-link {
   margin-top: 6rem;
   width: 96rem;
   display: flex;
   flex-wrap: wrap;
 
-  a {
+  .link-item-bg {
+    width: auto;
+    display: inline;
     margin: 1rem;
     position: relative;
     color: rgba(255, 255, 255, 0.75);
@@ -126,20 +159,28 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
       border-radius: 1.2rem;
     }
 
+    &.active::before,
     &:hover::before {
       background-color: rgba(255, 255, 255, 0.45);
       box-shadow: rgba(142, 142, 142, 0.19) 0rem 0.6rem 1.5rem 0rem;
     }
+
+    &:hover .link-item .del {
+      display: flex;
+    }
   }
 
-  .url-item {
+  .link-item {
     width: 14rem;
     padding: 1.5rem 2rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    .url-item-title {
+    position: relative;
+    cursor: pointer;
+
+    .link-item-title {
       width: 100%;
       font-size: 1.4rem;
       color: #fff;
@@ -153,6 +194,28 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
       text-overflow: ellipsis;
       text-align: center;
       margin-top: 1rem;
+    }
+
+    .del {
+      transition: all 0.5s;
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.3rem;
+      display: none;
+      vertical-align: middle;
+      &.active,
+      &:hover {
+        background-color: rgba($color: #000, $alpha: 0.25);
+        backdrop-filter: blur(0.6rem);
+      }
+      &.active {
+        display: flex;
+      }
     }
   }
 }
@@ -188,7 +251,7 @@ const { currentWallpaper, changWallpaper } = useWallpaper()
     box-shadow: rgba(142, 142, 142, 0.19) 0rem 0.6rem 1.5rem 0rem;
   }
 
-  &:hover{
+  &:hover {
     transform: rotate(180deg);
   }
 }
