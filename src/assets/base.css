@@ -10,7 +10,7 @@
 
 html,
 body {
-  width: 100%;
+  width: 100% !important;
   height: 100%;
   overflow: hidden;
   font-family: HarmonyOS_Regular, sans-serif;

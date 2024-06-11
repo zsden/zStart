@@ -19,10 +19,9 @@ function FavoriteLinksUnique(favoriteLinks: FavoriteLink[]) {
   return uniqueFavoriteLinks.sort((a, b) => Number(b.visitCount) - Number(a.visitCount))
 }
 
-// 快速访问
 export function useFavoriteLinks() {
-  const currentFavoriteLinks = ref<FavoriteLink[]>()
-  const uniqueFavoriteLinks = ref<FavoriteLink[]>()
+  const currentFavoriteLinks = ref<FavoriteLink[]>([])
+  const uniqueFavoriteLinks = ref<FavoriteLink[]>([])
   onMounted(() => {
     if (process.env.NODE_ENV === 'development') return
     chrome.history.search(
@@ -33,18 +32,23 @@ export function useFavoriteLinks() {
         const historyFavoriteLinks: FavoriteLink[] = history.filter(
           (item) => Number(item.visitCount) > 3
         ) // 取出历史中访问数大于3的链接
-        uniqueFavoriteLinks.value = FavoriteLinksUnique(historyFavoriteLinks) // 去重
+
+        uniqueFavoriteLinks.value = FavoriteLinksUnique(historyFavoriteLinks).map((item) => {
+          item.icon = domainHasIcon(item.url)
+          return item
+        }) // 去重
 
         const savedFavoriteLinks: FavoriteLink[] = (await storage.sync.get('favoriteLinks'))[
           'favoriteLinks'
         ]
-
-        // console.log('savedFavoriteLinks', savedFavoriteLinks)
-
+        
         if (savedFavoriteLinks) {
           currentFavoriteLinks.value = savedFavoriteLinks.map((item) => {
             item.icon = domainHasIcon(item.url)
             return item
+          })
+          uniqueFavoriteLinks.value = uniqueFavoriteLinks.value.filter((item) => {
+            return !currentFavoriteLinks.value.some((citem) => citem.url === item.url)
           })
         } else {
           // 第一次 至多显示18个
@@ -55,8 +59,6 @@ export function useFavoriteLinks() {
             return item
           })
         }
-
-        // console.log('uniqueFavoriteLinks', uniqueFavoriteLinks.value)
       }
     )
   })
@@ -74,8 +76,21 @@ export function useFavoriteLinks() {
     delIndex.value = -1
   }
 
-  return { currentFavoriteLinks, uniqueFavoriteLinks, delFavoriteLink, delIndex }
-}
+  const addLinkDrawer = ref<boolean>(false)
 
-// todo
-// 删除链接
+  const addFavoriteLink = (link: FavoriteLink) => {
+    if (!currentFavoriteLinks.value.find((item) => item.url === link.url)) {
+      currentFavoriteLinks.value.push(link)
+      storage.sync.set({ favoriteLinks: FavoriteLinksUnique(currentFavoriteLinks.value) })
+    }
+  }
+
+  return {
+    currentFavoriteLinks,
+    uniqueFavoriteLinks,
+    delIndex,
+    delFavoriteLink,
+    addLinkDrawer,
+    addFavoriteLink
+  }
+}

@@ -7,10 +7,14 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    ElDrawer: typeof import('element-plus/es')['ElDrawer']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElPopconfirm: typeof import('element-plus/es')['ElPopconfirm']
+    IEpArrowLeft: typeof import('~icons/ep/arrow-left')['default']
+    IEpArrowRight: typeof import('~icons/ep/arrow-right')['default']
     IEpCloseBold: typeof import('~icons/ep/close-bold')['default']
     IEpLink: typeof import('~icons/ep/link')['default']
+    IEpPlus: typeof import('~icons/ep/plus')['default']
     IEpRefresh: typeof import('~icons/ep/refresh')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
